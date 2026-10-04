@@ -1,0 +1,37 @@
+services:
+  ubuntu:
+    image: ubuntu-novnc
+    container_name: ubuntu-desktop
+    restart: unless-stopped
+
+    mem_limit: 128g
+    shm_size: "32gb"
+
+    ports:
+      - "6080:6080"
+
+    volumes:
+      - ubuntu_home:/home/ubuntu
+      - ubuntu_data:/data
+
+    environment:
+      DISPLAY: ":1"
+      RESOLUTION: "1920x1080"
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: ubuntu-tunnel
+    restart: unless-stopped
+
+    depends_on:
+      - ubuntu
+
+    command:
+      - tunnel
+      - --no-autoupdate
+      - --url
+      - http://ubuntu:6080
+
+volumes:
+  ubuntu_home:
+  ubuntu_data:
